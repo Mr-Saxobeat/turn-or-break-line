@@ -219,7 +219,7 @@
 
     ;A cada instância, pegar os pontos de interseção da linha a ser desviada
    (repeat (sslength SSLDes)
-		 (setq en (ssname SSLDes i))
+		 (setq en (ssname SSLDes i))os 
      (setq LDes (vlax-ename->vla-object en))
 
     ;Lista dos pontos de interseção

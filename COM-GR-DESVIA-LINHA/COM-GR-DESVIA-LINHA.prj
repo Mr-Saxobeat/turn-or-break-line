@@ -1,13 +1,13 @@
-;;; VLisp project file [V2.0] COM-GR-DESVIA-LINHA saved to:[Z:/Langamer Engenharia/06-TI/AutoLISP/LISP/COM-GR-DESVIA-LINHA] at:[9/6/18] 
+;;; VLisp project file [V2.0] COM-GR-DESVIA-LINHA saved to:[Z:/Langamer Engenharia/06-TI/AutoLISP/LISP/turn-or-break-line/COM-GR-DESVIA-LINHA] at:[5/17/19] 
 (VLISP-PROJECT-LIST
   :NAME
   COM-GR-DESVIA-LINHA
   :OWN-LIST
   ("COM-GR-DESVIA-LINHA")
   :FAS-DIRECTORY
-  "Z:\\Lisp"
+  "Z:/Lisp"
   :TMP-DIRECTORY
-  "Z:\\Langamer Engenharia\\06-TI\\AutoLISP\\LISP\\COM-GR-DESVIA-LINHA"
+  "Z:\\Langamer Engenharia\\06-TI\\AutoLISP\\LISP\\turn-or-break-line\\COM-GR-DESVIA-LINHA"
   :PROJECT-KEYS
   (:BUILD (:standard) :MERGED nil :SAFE-MODE T :MSGLEVEL 1)
   :CONTEXT-ID

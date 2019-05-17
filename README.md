@@ -1,6 +1,6 @@
 # Turn or Break Line
 
-This LISP AutoCad plugin makes a break in the selected lines that transverse other fixed lines selected by the user.
+This Lisp AutoCad plugin makes a turn or a break in the selected lines that intercepts other selected lines.
 
 There are two commands: **DES** and **DES2**.
 

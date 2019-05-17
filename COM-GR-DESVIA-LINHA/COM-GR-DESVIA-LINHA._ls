@@ -1,6 +1,7 @@
 ;; DESVIA LINHAS - WEIGLAS RIBEIRO                                              
 ;; Cria um "desvio" de várias linhas que interceptam outras retas.              
-;; Pede-se primeiro as retas a desviar e depois as retas que são interceptadas. 
+;; Pede-se primeiro as retas a desviar e depois as retas que são interceptadas.
+
 (setenv "DISTCENTRO" "0.1")
 (setenv "MARGEMEXT" "0.2")
 (defun C:DES(/ oldLayer newLayer SSLDes SSLPer opcao distC margemExt ;|en el itsects i j pt1 pt2 ptm ptm2|;)
@@ -76,10 +77,11 @@
   (setvar "CLAYER" newLayer)
 
   (setq i 0)
+		;Inicia o grupo "UNDO"
   (command "_.Undo" "_BE")
   (setvar "OSMODE" 0)
 
-  ;Inicia o grupo "UNDO"
+
   
   (repeat (sslength SSLDes)
 
@@ -146,6 +148,117 @@
     
     (setq i (1+ i))
     )
+  (setvar "CLAYER" oldLayer)
+  (command "_.UNDO" "_E")
+  
+  (RestauraVariaveis)
+  (princ)
+  )
+
+(defun C:DES2(/ oldLayer newLayer SSLDes SSLPer opcao distC margemExt ;|en el itsects i j pt1 pt2 ptm ptm2|;)
+  (vl-load-com)
+  (GuardaVariaveis (list))
+  
+  ;Pegar as linhas
+  (prompt "\nSelecione as linhas fixas: ")
+  (setvar "NOMUTT" 1)
+  (setq SSLPer (ssget))
+	(setvar "NOMUTT" 0)
+	(prompt "\nSelecione linhas a desviar: ")
+  (setvar "NOMUTT" 1)
+  (setq SSLDes (ssget))
+  (setvar "NOMUTT" 0)
+
+  ;Pergunta se confirma os valores atuais, ou se deseja mudar
+  (setq opcao
+	 (strcase (getstring
+	   (strcat"\nConfirmar Redefinir? <Margem Exterior: " (getenv "MARGEMEXT") "> [ENTER/Redefinir]: "))))
+			
+	
+  ;Se deseja mudar
+  (if (equal opcao "R")
+
+    ;Se a opção digitada foi para redefinir
+    (progn
+			
+    ;Pega valor da distância da margem exterior das retas perpendiculares
+    (setq margemExt (cond
+		      ;Se o usuário digitar algum valor
+		      ((setq margemExt (getreal (strcat "\nDigite a margem exterior <" (getenv "MARGEMEXT") ">: ")))
+
+		       ;Atualiza a variável de ambiente
+		       (setenv "MARGEMEXT" (rtos margemExt 2 2))
+
+		       ;Como último retorno para "setq", retorna o valor da variável de ambiente já atualizada
+		       (setq margemExt (distof (getenv "MARGEMEXT") 2))
+		       )
+		      
+		      ;Se o usuário não digita nada, pega o valor da variável de ambiente
+		      ((setq margemExt (distof (getenv "MARGEMEXT") 2))))
+		      )
+	  )
+
+    ;Se a opção digitada foi "ENTER" para não redefinir
+    ;apenas atualiza as variáveis pegando os valores das 'variáveis de ambiente'
+    (progn
+      ;(setq distC (distof (getenv "DISTCENTRO") 2))
+      (setq margemExt (distof (getenv "MARGEMEXT") 2))
+      )
+    )
+
+  (setq oldLayer (getvar "CLAYER"))
+  (setq en (ssname SSLDES 0))
+  (setq el (entget en))
+  (setq newLayer (cdr (assoc 8 el)))
+  (setvar "CLAYER" newLayer)
+
+  (setq i 0)
+	;Inicia o grupo "UNDO"
+  (command "_.Undo" "_BE")
+  (setvar "OSMODE" 0)
+
+    ;A cada instância, pegar os pontos de interseção da linha a ser desviada
+   (repeat (sslength SSLDes)
+		 (setq en (ssname SSLDes i))
+     (setq LDes (vlax-ename->vla-object en))
+
+    ;Lista dos pontos de interseção
+    (setq itsects (append))
+
+    ;Armazenar o ponto interseção com cada linha permanente na lista "itsects"
+    (setq j 0)
+    (repeat (sslength SSLPer)
+      (setq LPer (vlax-ename->vla-object (ssname SSLPer j)))
+      (setq itsects (append (LM:intersections LDes LPer acextendnone) itsects))
+      (setq j (1+ j))
+      )
+
+		 ;; Get the star and end point from line 
+		 (setq pt1Line (cdr (assoc 10 (entget en))))
+		 (setq pt2Line (cdr (assoc 11 (entget en))))
+
+		 ;; Foreach intersection 
+		 (foreach itsectPt itsects
+			 
+			 (setq breakPt1 (polar itsectPt (angle pt1Line pt2Line) (atof (getenv "MARGEMEXT"))))
+			 (setq breakPt2 (polar itsectPt (angle pt2Line pt1Line) (atof (getenv "MARGEMEXT"))))
+			 (setq dist (distance breakPt1 breakPt2))
+			 (setq midPt (polar breakPt1 (angle breakPt1 breakPt2) (/ dist 2)))
+
+			 (command "_.ZOOM" "C" midPt dist)
+
+			 (command "BREAK" breakPt1 breakPt2)
+			 )
+
+    ;O zoom foi usado por causa de erros no momento de selecionar os pontos com a tela muito longe
+;;;    (if (/= pt1 pt2)
+;;;    	(command "_.ZOOM" "C" ptm (distance pt1 pt2))
+;;;        (command "_.ZOOM" "C" ptm (distance pt1 ptm2))
+;;;      )
+		 
+    (setq i (1+ i))
+    )
+	
   (setvar "CLAYER" oldLayer)
   (command "_.UNDO" "_E")
   

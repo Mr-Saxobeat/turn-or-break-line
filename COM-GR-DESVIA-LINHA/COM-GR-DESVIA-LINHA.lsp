@@ -105,30 +105,30 @@
     ;Se houver mais de uma linha interseptora
     (if (> (length itsects) 1)
       (progn
-	;Pega os dois pontos mais distantes entre sí
-	(setq pts (maxDistPts itsects))
-  	(setq pt1 (car pts))
-  	(setq pt2 (cadr pts))
-	
-	;Ponto médio entre "p1" e "p2"
-        (setq ptm (polar pt1 (angle pt1 pt2) (/ (distance pt1 pt2) 2)))
-    	;ptm2 será usado na criação da elipse, o eixo menor
-    	(setq ptm2 (polar ptm (+ (angle pt1 pt2) (/ (* pi 3) 2.0)) distC))
+				;Pega os dois pontos mais distantes entre sí
+				(setq pts (maxDistPts itsects))
+				(setq pt1 (car pts))
+				(setq pt2 (cadr pts))
 
-	(setq pt1 (polar pt1 (angle pt2 pt1) margemExt))
+				;Ponto médio entre "p1" e "p2"
+        (setq ptm (polar pt1 (angle pt1 pt2) (/ (distance pt1 pt2) 2)))
+				;ptm2 será usado na criação da elipse, o eixo menor
+				(setq ptm2 (polar ptm (+ (angle pt1 pt2) (/ (* pi 3) 2.0)) distC))
+
+				(setq pt1 (polar pt1 (angle pt2 pt1) margemExt))
         (setq pt2 (polar pt2 (angle pt1 pt2) margemExt))
-	)
-      
-      (progn
-	(setq pt1 (car itsects))
-	(setq pt2 (car itsects))
-	(setq ptm pt1)
-	(setq el (entget (ssname SSLDes i)))
-	(setq ptm2 (polar ptm (+ (angle (cdr (assoc 10 el)) (cdr (assoc 11 el))) (/ pi 2.0)) distC))
-	(setq pt1 (polar pt1 (angle pt1 (cdr (assoc 10 el))) margemExt))
-	(setq pt2 (polar pt2 (angle pt2 (cdr (assoc 11 el))) margemExt))
-	)
-      )
+				)
+
+			(progn
+				(setq pt1 (car itsects))
+				(setq pt2 (car itsects))
+				(setq ptm pt1)
+				(setq el (entget (ssname SSLDes i)))
+				(setq ptm2 (polar ptm (+ (angle (cdr (assoc 10 el)) (cdr (assoc 11 el))) (/ pi 2.0)) distC))
+				(setq pt1 (polar pt1 (angle pt1 (cdr (assoc 10 el))) margemExt))
+				(setq pt2 (polar pt2 (angle pt2 (cdr (assoc 11 el))) margemExt))
+				)
+			)
     
 
     ;O zoom foi usado por causa de erros no momento de selecionar os pontos com a tela muito longe
@@ -137,15 +137,19 @@
         (command "_.ZOOM" "C" ptm (distance pt1 ptm2))
       )
 
-   
-    (command "ELLIPSE" "C" ptm ptm2 pt2)
+		(command "BREAK" pt1 pt2)
+		(command "SPLINE" pt1 ptm2 pt2 "" "" "")
 
-    ;Trim da metade da elipse
-    (command "TRIM" (ssname SSLDes i) "" ptm2 "")
-
-    ;Trim da parte da reta que fica dentro da elipse
-    (command "TRIM" "L" "" "C" (polar ptm (angle ptm pt1) (/ margemExt 2)) "")
-    
+		;-------------------------------------------------------------------------------------
+;;;    (command "ELLIPSE" "C" ptm ptm2 pt2)
+;;;
+;;;    ;Trim da metade da elipse
+;;;    (command "TRIM" (ssname SSLDes i) "" ptm2 "")
+;;;
+;;;    ;Trim da parte da reta que fica dentro da elipse
+;;;    (command "TRIM" "L" "" "C" (polar ptm (angle ptm pt1) (/ margemExt 2)) "")
+    ;-------------------------------------------------------------------------------------
+		
     (setq i (1+ i))
     )
   (setvar "CLAYER" oldLayer)
